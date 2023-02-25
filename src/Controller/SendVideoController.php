@@ -9,13 +9,13 @@ use HackbartPR\Repository\PDOVideoRepository;
 
 class SendVideoController extends HtmlViewController implements Controller
 {
-    private Message $message;
     private PDOVideoRepository $repository;
 
-    public function __construct(PDOVideoRepository $repository, Message $message)
+    use Message;
+
+    public function __construct(PDOVideoRepository $repository)
     {
-        $this->repository = $repository;
-        $this->message = $message;
+        $this->repository = $repository;        
     }
 
     public function processRequest(): void
@@ -28,7 +28,7 @@ class SendVideoController extends HtmlViewController implements Controller
         }
 
         echo $this->renderTemplate('sendVideo', ['video' => $video]);        
-        $this->message->show();
+        $this->show();
     }
 
     private function validation(): array

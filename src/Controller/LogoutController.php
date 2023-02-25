@@ -7,16 +7,15 @@ use HackbartPR\Interfaces\Controller;
 
 class LogoutController implements Controller
 {
-    private Auth $auth;
+    use Auth;
 
-    public function __construct(Auth $auth)
-    {        
-        $this->auth = $auth;
+    public function __construct()
+    {                
     }
 
     public function processRequest(): void
     {
-        $this->auth->logout();
+        $this->logout();
         header('Location: /login');
         exit();
     }

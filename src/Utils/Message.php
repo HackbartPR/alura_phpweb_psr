@@ -2,7 +2,7 @@
 
 namespace HackbartPR\Utils;
 
-class Message
+trait Message
 {
     const TITLE_FAIL = 'Título não é valido.';
     const URL_FAIL = 'URL não é válida.';
@@ -26,7 +26,7 @@ class Message
         self::LOGIN_SUCCESS => true,
     ];
 
-    public static function create(string $constant, string $location = null): void
+    private function create(string $constant, string $location = null): void
     {   
         $_SESSION['save']['status'] = self::STATUS_MAP[$constant] ?? false;
         $_SESSION['save']['message'] = $constant;
@@ -40,7 +40,7 @@ class Message
         exit();
     }
 
-    public static function show(): void
+    private function show(): void
     {
         if (isset($_SESSION['save'])) {
             if ($_SESSION['save']['status']) { ?>

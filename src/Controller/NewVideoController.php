@@ -9,16 +9,15 @@ use HackbartPR\Interfaces\Controller;
 use HackbartPR\Repository\PDOVideoRepository;
 
 class NewVideoController implements Controller
-{
-    private Image $image;
-    private Message $message;
+{    
     private PDOVideoRepository $repository;
 
-    public function __construct(PDOVideoRepository $repository ,Message $message, Image $image)
+    use Image;
+    use Message;
+
+    public function __construct(PDOVideoRepository $repository)
     {
-        $this->repository = $repository;
-        $this->message = $message;
-        $this->image = $image;
+        $this->repository = $repository;                
     }
 
     public function processRequest(): void
@@ -26,22 +25,22 @@ class NewVideoController implements Controller
         [$url, $title, $image_path] = $this->validation();
 
         if (!empty($image_path)) {
-            $image_path = $this->image->getName();
+            $image_path = $this->getName();
         }
 
         $resp = $this->repository->save(new Video(null, $title, $url, $image_path));
 
         if ($resp) {
-            $this->message::create($this->message::REGISTER_SUCCESS);
+            $this->create(self::REGISTER_SUCCESS);
         } else {
-            $this->message::create($this->message::REGISTER_FAIL);
+            $this->create(self::REGISTER_FAIL);
         }
     }
 
     private function validation(): array
     {
         if (!isset($_POST)) {
-            $this->message::create($this->message::FORM_FAIL);
+            $this->create(self::FORM_FAIL);
         }
 
         $url = filter_input(INPUT_POST, 'url', FILTER_VALIDATE_URL);
@@ -53,15 +52,15 @@ class NewVideoController implements Controller
         }         
 
         if (!$url) {
-            $this->message::create($this->message::URL_FAIL);
+            $this->create(self::URL_FAIL);
         }
         
         if (!$title) {
-            $this->message::create($this->message::TITLE_FAIL);
+            $this->create(self::TITLE_FAIL);
         }
 
-        if (!empty($image_path) && !$this->image->isValid($image_path)) {
-            $this->message::create($this->message::IMAGE_NOT_SAVED, '/novo');
+        if (!empty($image_path) && !$this->isValid($image_path)) {
+            $this->create(self::IMAGE_NOT_SAVED, '/novo');
         }
 
         return [$url, $title, $image_path];        

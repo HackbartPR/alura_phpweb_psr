@@ -37,11 +37,16 @@ class PDOVideoRepository implements VideoRepository
 
     public function update(Video $video):bool
     {
-        $stmt = $this->pdo->prepare('UPDATE videos SET url = :url, title = :title, image_path = :image_path WHERE id = :id;');
+        if ($video->image_path() === null) {
+            $stmt = $this->pdo->prepare('UPDATE videos SET url = :url, title = :title WHERE id = :id;');
+        } else {
+            $stmt = $this->pdo->prepare('UPDATE videos SET url = :url, title = :title, image_path = :image_path WHERE id = :id;');
+            $stmt->bindValue(':image_path', $video->image_path());
+        }
+        
         $stmt->bindValue(':url', $video->url);
         $stmt->bindValue(':title', $video->title);
         $stmt->bindValue(':id', $video->id());
-        $stmt->bindValue(':image_path', $video->image_path());
         
         return $stmt->execute();        
     }

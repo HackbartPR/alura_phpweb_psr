@@ -9,23 +9,21 @@ use HackbartPR\Controller\HtmlViewController;
 
 class LoginController extends HtmlViewController implements Controller
 {
-    private Auth $auth;
-    private Message $message;
+    use Auth;
+    use Message;
 
-    public function __construct(Message $message, Auth $auth)
-    {
-        $this->message = $message;
-        $this->auth = $auth;
+    public function __construct()
+    {                
     }
 
     public function processRequest(): void
     {
-        if ($this->auth->isLogged()) {
+        if ($this->isLogged()) {
             header('Location: /');
             exit();
         }
 
         echo $this->renderTemplate('login');        
-        $this->message->show();
+        $this->show();
     }
 }

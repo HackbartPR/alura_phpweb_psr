@@ -2,9 +2,6 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use HackbartPR\Utils\Auth;
-use HackbartPR\Utils\Image;
-use HackbartPR\Utils\Message;
 use HackbartPR\Config\ConnectionCreator;
 use HackbartPR\Controller\LoginController;
 use HackbartPR\Controller\LogoutController;
@@ -24,12 +21,9 @@ session_regenerate_id();
 $path = $_SERVER['PATH_INFO'] ?? '/';
 $method = $_SERVER['REQUEST_METHOD'];
 
-$auth = new Auth();
-$image = new Image();
-$message = new Message();
 $conn = ConnectionCreator::createConnection();
 
-if (!$auth->isLogged() && $path !== '/login') {
+if (!array_key_exists('logged', $_SESSION) && $_SESSION['logged'] && $path !== '/login') {
     header('Location: /login');
     exit();
 } 
@@ -44,16 +38,8 @@ if ($path === '/login' || $path === '/logout') {
 $router = require_once __DIR__ . '/../routes/router.php';
 $routerClass = $router["$method|$path"];
 
-if (array_key_exists("$method|$path", $router)) {
-    if ($path === '/login' && $method === 'GET') {
-        $controller = new $routerClass($message, $auth);
-    } else if ($path === '/logout'){
-        $controller = new $routerClass($auth);
-    } else if (($path === '/novo' || $path === '/editar')&& $method === 'POST') {
-        $controller = new $routerClass($repository, $message, $image);   
-    } else {
-        $controller = new $routerClass($repository, $message, $auth, $image);
-    }    
+if (array_key_exists("$method|$path", $router)) {    
+    $controller = new $routerClass($repository);       
 } else {    
     $controller = new Response404Controller();
 }

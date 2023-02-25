@@ -11,10 +11,11 @@ class RemoveVideoController implements Controller
     private Message $message;
     private PDOVideoRepository $repository;
 
-    public function __construct(PDOVideoRepository $repository, Message $message)
+    use Message;
+
+    public function __construct(PDOVideoRepository $repository)
     {
         $this->repository = $repository;
-        $this->message = $message;
     }
 
     public function processRequest(): void
@@ -23,16 +24,16 @@ class RemoveVideoController implements Controller
         $result = $this->repository->remove($id);
 
         if ($result) {
-            $this->message::create($this->message::REMOVE_SUCCESS);
+            $this->create(self::REMOVE_SUCCESS);
         } else {
-            $this->message::create($this->message::REMOVE_FAIL);
+            $this->create(self::REMOVE_FAIL);
         }
     }
 
     private function validation(): array
     {
         if (!isset($_GET['id'])) {
-            $this->message::create($this->message::NOT_FOUND);
+            $this->create(self::NOT_FOUND);
         }
 
         $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);        

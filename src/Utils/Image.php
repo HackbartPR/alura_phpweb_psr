@@ -2,13 +2,13 @@
 
 namespace HackbartPR\Utils;
 
-class Image
+trait Image
 {
     private array $file;
     private ?string $extension = null;
     private int $maxSize = 1048576;
 
-    public function isValid(array $file): bool
+    private function isValid(array $file): bool
     {        
         if ($file['error'] !== UPLOAD_ERR_OK) {
             return false;
@@ -35,7 +35,7 @@ class Image
         return true;        
     }
     
-    public function getName(): string
+    private function getName(): string
     {        
         return $this->file['name'];
     }
@@ -45,7 +45,7 @@ class Image
         $this->file['name'] = md5($this->file['name']) . $this->extension;        
     }
 
-    public function setMaxSize(int $size): void
+    private function setMaxSize(int $size): void
     {
         $this->maxSize = $size;
     }

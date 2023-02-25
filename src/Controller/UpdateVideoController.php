@@ -9,16 +9,15 @@ use HackbartPR\Interfaces\Controller;
 use HackbartPR\Repository\PDOVideoRepository;
 
 class UpdateVideoController implements Controller
-{
-    private Image $image;
-    private Message $message;
+{    
     private PDOVideoRepository $repository;
 
-    public function __construct(PDOVideoRepository $repository ,Message $message, Image $image)
+    use Image;
+    use Message;
+
+    public function __construct(PDOVideoRepository $repository)
     {
-        $this->repository = $repository;
-        $this->message = $message;
-        $this->image = $image;
+        $this->repository = $repository;        
     }
 
     public function processRequest(): void
@@ -26,22 +25,22 @@ class UpdateVideoController implements Controller
         [$id, $url, $title, $image_path] = $this->validation();
 
         if (!empty($image_path)) {
-            $image_path = $this->image->getName();
+            $image_path = $this->getName();
         }
 
         $resp = $this->repository->save(new Video($id, $title, $url, $image_path));
 
         if ($resp) {
-            Message::create(Message::UPDATE_SUCCESS);
+            $this->create(self::UPDATE_SUCCESS);
         } else {
-            Message::create(Message::UPDATE_FAIL);
+            $this->create(self::UPDATE_FAIL);
         }
     }
 
     private function validation(): array
     {
         if (!isset($_POST) || !isset($_GET['id'])) {
-            $this->message::create($this->message::FORM_FAIL);
+            $this->create(self::FORM_FAIL);
         }
 
         $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
@@ -54,17 +53,17 @@ class UpdateVideoController implements Controller
         }
         
         if (!$url) {
-            $this->message::create($this->message::URL_FAIL);
+            $this->create(self::URL_FAIL);
         }
         
         if (!$title) {
-            $this->message::create($this->message::TITLE_FAIL);
+            $this->create(self::TITLE_FAIL);
         }
 
         $this->getUrlParams();
 
-        if (!empty($image_path) && !$this->image->isValid($image_path)) {
-            $this->message::create($this->message::IMAGE_NOT_SAVED, $this->getUrlParams());
+        if (!empty($image_path) && !$this->isValid($image_path)) {
+            $this->create(self::IMAGE_NOT_SAVED, $this->getUrlParams());
         }
 
         return [$id, $url, $title, $image_path];        

@@ -1,0 +1,17 @@
+{
+    "name": "hackbartpr/alura_phpweb_psr",
+    "description": "Aplicação Desenvolvido no Curso de Boas Práticas e PSRs da Alura",
+    "type": "project",
+    "authors": [
+        {
+            "name": "HackbartPR",
+            "email": "cgharckbart@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "HackbartPR\\": "src/"
+        }
+    },
+    "require": {}
+}

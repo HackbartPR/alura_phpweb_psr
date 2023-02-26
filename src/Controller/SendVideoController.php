@@ -3,15 +3,16 @@
 namespace HackbartPR\Controller;
 
 use HackbartPR\Utils\Message;
+use HackbartPR\Utils\HtmlView;
 use HackbartPR\Interfaces\Controller;
-use HackbartPR\Controller\HtmlViewController;
 use HackbartPR\Repository\PDOVideoRepository;
 
-class SendVideoController extends HtmlViewController implements Controller
+class SendVideoController implements Controller
 {
     private PDOVideoRepository $repository;
 
     use Message;
+    use HtmlView;
 
     public function __construct(PDOVideoRepository $repository)
     {

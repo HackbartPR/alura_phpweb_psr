@@ -5,12 +5,13 @@ namespace HackbartPR\Controller;
 use HackbartPR\Utils\Auth;
 use HackbartPR\Utils\Message;
 use HackbartPR\Interfaces\Controller;
-use HackbartPR\Controller\HtmlViewController;
+use HackbartPR\Utils\HtmlView;
 
-class LoginController extends HtmlViewController implements Controller
+class LoginController implements Controller
 {
     use Auth;
     use Message;
+    use HtmlView;
 
     public function __construct()
     {                

@@ -1,12 +1,12 @@
 <?php
 
-namespace HackbartPR\Controller;
+namespace HackbartPR\Utils;
 
-abstract class HtmlViewController
+trait HtmlView
 {
     private const TEMPLATE_PATH = __DIR__ . '/../../view/';
     
-    protected function renderTemplate(string $templateName, array $context = []): string
+    private function renderTemplate(string $templateName, array $context = []): string
     {
         extract($context);
         

@@ -2,8 +2,11 @@
 
 namespace HackbartPR\Controller;
 
+use Nyholm\Psr7\Response;
 use HackbartPR\Utils\Auth;
 use HackbartPR\Interfaces\Controller;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class LogoutController implements Controller
 {
@@ -13,10 +16,9 @@ class LogoutController implements Controller
     {                
     }
 
-    public function processRequest(): void
+    public function processRequest(ServerRequestInterface $request): ResponseInterface
     {
         $this->logout();
-        header('Location: /login');
-        exit();
+        return new Response(302, ['Location' => '/login']);        
     }
 }

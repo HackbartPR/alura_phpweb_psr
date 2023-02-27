@@ -2,9 +2,12 @@
 
 namespace HackbartPR\Controller;
 
+use Nyholm\Psr7\Response;
 use HackbartPR\Entity\Video;
 use HackbartPR\Interfaces\Controller;
 use HackbartPR\Interfaces\VideoRepository;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class JsonVideoListController implements Controller
 {
@@ -15,7 +18,7 @@ class JsonVideoListController implements Controller
         $this->repository = $repository;
     }
 
-    public function processRequest(): void
+    public function processRequest(ServerRequestInterface $request): ResponseInterface
     {   
         $videoList = array_map(function(Video $video){
             return [
@@ -26,6 +29,6 @@ class JsonVideoListController implements Controller
             ];
         }, $this->repository->all());
 
-        echo json_encode($videoList);
+        return new Response(200, body:json_encode($videoList));        
     }
 }

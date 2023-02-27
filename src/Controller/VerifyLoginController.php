@@ -2,11 +2,15 @@
 
 namespace HackbartPR\Controller;
 
+use Nyholm\Psr7\Response;
 use HackbartPR\Utils\Auth;
 use HackbartPR\Utils\Message;
+use HackbartPR\Interfaces\Controller;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use HackbartPR\Repository\PDOUserRepository;
 
-class VerifyLoginController
+class VerifyLoginController implements Controller
 {    
     private PDOUserRepository $repository;
     
@@ -18,36 +22,49 @@ class VerifyLoginController
         $this->repository = $repository;        
     }
     
-    public function processRequest(): void
+    public function processRequest(ServerRequestInterface $request): ResponseInterface
     {
-        [$email, $password] = $this->validation();
+        [$email, $password, $validation] = $this->validation($request);
+
+        if (!$validation) {
+            return new Response(403, ['Location' => '/login']);
+        }
+
         $user = $this->repository->findByEmail($email);
         
         if (!$user) {
-            $this->create(self::LOGIN_FAIL, '/login');
+            $this->create(self::LOGIN_FAIL);
+            return new Response(403, ['Location' => '/login']);
         }
 
         if (!password_verify($password, $user->password())) {
-            $this->create(self::LOGIN_FAIL, '/login');            
+            $this->create(self::LOGIN_FAIL);
+            return new Response(403, ['Location' => '/login']);   
         } 
         
         $this->login();
         $this->create(self::LOGIN_SUCCESS);
+        return new Response(200, ['Location' => '/']);
     }
     
-    private function validation(): array
-    {
-        if (!isset($_POST['email']) || !isset($_POST['password'])) {
-            $this->create(self::FORM_FAIL, '/login');
+    private function validation(ServerRequestInterface $request): array
+    {   
+        $body = $request->getParsedBody();
+        $validation = false;
+
+        if (empty($body['email']) || !isset($body['password'])) {
+            $this->create(self::FORM_FAIL);
+            $validation = false;
         }
 
-        $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
-        $password = $_POST['password'];
+        $email = filter_var($body['email'], FILTER_VALIDATE_EMAIL);
+        $password = filter_var($body['password']);
         
         if (!$email) {
-            $this->create(self::EMAIL_INVALID, '/login');
+            $this->create(self::EMAIL_INVALID);
+            $validation = false;
         }
 
-        return [$email, $password];
+        return [$email, $password, $validation];
     }
 }

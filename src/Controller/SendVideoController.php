@@ -2,9 +2,12 @@
 
 namespace HackbartPR\Controller;
 
+use Nyholm\Psr7\Response;
 use HackbartPR\Utils\Message;
 use HackbartPR\Utils\HtmlView;
 use HackbartPR\Interfaces\Controller;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use HackbartPR\Repository\PDOVideoRepository;
 
 class SendVideoController implements Controller
@@ -19,24 +22,26 @@ class SendVideoController implements Controller
         $this->repository = $repository;        
     }
 
-    public function processRequest(): void
+    public function processRequest(ServerRequestInterface $request): ResponseInterface
     {
-        [$id] = $this->validation();
+        [$id] = $this->validation($request);
 
         $video = null;
         if ($id) {
             $video = $this->repository->show($id);
         }
 
-        echo $this->renderTemplate('sendVideo', ['video' => $video]);        
         $this->show();
+        return new Response(200, body: $this->renderTemplate('sendVideo', ['video' => $video]));        
     }
 
-    private function validation(): array
+    private function validation(ServerRequestInterface $request): array
     {
+        $body = $request->getParsedBody();        
+
         $id = null;
-        if (isset($_GET['id'])) {
-            $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);            
+        if (isset($body['id'])) {
+            $id = filter_var($body['id'], FILTER_VALIDATE_INT);            
         }
 
         return [$id];        

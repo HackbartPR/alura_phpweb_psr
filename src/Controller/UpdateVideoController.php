@@ -2,10 +2,13 @@
 
 namespace HackbartPR\Controller;
 
+use Nyholm\Psr7\Response;
 use HackbartPR\Utils\Image;
 use HackbartPR\Entity\Video;
 use HackbartPR\Utils\Message;
 use HackbartPR\Interfaces\Controller;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use HackbartPR\Repository\PDOVideoRepository;
 
 class UpdateVideoController implements Controller
@@ -20,9 +23,16 @@ class UpdateVideoController implements Controller
         $this->repository = $repository;        
     }
 
-    public function processRequest(): void
+    public function processRequest(ServerRequestInterface $request): ResponseInterface
     {
-        [$id, $url, $title, $image_path] = $this->validation();
+        $param = $request->getQueryParams();
+        $url = '/editar?id=' . $param['id'];
+
+        [$id, $url, $title, $image_path, $validation] = $this->validation($request);
+        
+        if (!$validation) {            
+            return new Response(422, ['Location' => $url]);
+        }
 
         if (!empty($image_path)) {
             $image_path = $this->getName();
@@ -32,20 +42,26 @@ class UpdateVideoController implements Controller
 
         if ($resp) {
             $this->create(self::UPDATE_SUCCESS);
+            return new Response(200, ['Location' => '/']);
         } else {
             $this->create(self::UPDATE_FAIL);
+            return new Response(422, ['Location' => $url]);
         }
     }
 
-    private function validation(): array
-    {
-        if (!isset($_POST) || !isset($_GET['id'])) {
+    private function validation(ServerRequestInterface $request): array
+    {   
+        $body = $request->getParsedBody();
+        $validation = true;
+
+        if (empty($body) || !isset($body['id'])) {
             $this->create(self::FORM_FAIL);
+            $validation = false;
         }
 
-        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-        $url = filter_input(INPUT_POST, 'url', FILTER_VALIDATE_URL);
-        $title = filter_input(INPUT_POST, 'titulo');
+        $id = filter_var($body['id'], FILTER_VALIDATE_INT);
+        $url = filter_var($body['url'], FILTER_VALIDATE_URL);
+        $title = filter_var($body['titulo']);
         
         $image_path = null;
         if (isset($_FILES['image']) && $_FILES['image']['error'] !== 4) {
@@ -54,23 +70,19 @@ class UpdateVideoController implements Controller
         
         if (!$url) {
             $this->create(self::URL_FAIL);
+            $validation = false;
         }
         
         if (!$title) {
             $this->create(self::TITLE_FAIL);
+            $validation = false;
         }
-
-        $this->getUrlParams();
 
         if (!empty($image_path) && !$this->isValid($image_path)) {
-            $this->create(self::IMAGE_NOT_SAVED, $this->getUrlParams());
+            $this->create(self::IMAGE_NOT_SAVED);
+            $validation = false;
         }
 
-        return [$id, $url, $title, $image_path];        
-    }
-
-    private function getUrlParams(): string
-    {
-        return $_SERVER['REQUEST_URI'];
+        return [$id, $url, $title, $image_path. $validation];        
     }
 }

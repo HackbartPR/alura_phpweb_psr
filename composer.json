@@ -13,5 +13,8 @@
             "HackbartPR\\": "src/"
         }
     },
-    "require": {}
+    "require": {
+        "psr/http-message": "^1.0",
+        "nyholm/psr7": "^1.5"
+    }
 }

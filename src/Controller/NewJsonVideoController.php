@@ -2,27 +2,27 @@
 
 namespace HackbartPR\Controller;
 
+use Nyholm\Psr7\Response;
 use HackbartPR\Entity\Video;
 use HackbartPR\Interfaces\Controller;
 use HackbartPR\Interfaces\VideoRepository;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class NewJsonVideoController implements Controller
 {
     public function __construct(private VideoRepository $repository)
     {
-
     }
 
-    public function processRequest(): void
+    public function processRequest(ServerRequestInterface $request): ResponseInterface
     {
-        $request = file_get_contents('php://input');
+        $body = $request->getParsedBody();        
 
-        $jsonList = json_decode($request, true);
-
-        foreach ($jsonList as $json) {
-            $this->repository->save(new Video(null, $json['title'], $json['url'], null));
+        foreach ($body as $video) {
+            $this->repository->save(new Video(null, $video['title'], $video['url'], null));
         }
 
-        http_response_code(201);
+        return new Response(201);
     }
 }

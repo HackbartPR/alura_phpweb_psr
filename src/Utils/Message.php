@@ -26,18 +26,10 @@ trait Message
         self::LOGIN_SUCCESS => true,
     ];
 
-    private function create(string $constant, string $location = null): void
+    private function create(string $constant): void
     {   
         $_SESSION['save']['status'] = self::STATUS_MAP[$constant] ?? false;
         $_SESSION['save']['message'] = $constant;
-        
-        if ($location) {
-            header("Location: $location");    
-            exit();    
-        }
-
-        header('Location: /');    
-        exit();
     }
 
     private function show(): void

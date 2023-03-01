@@ -3,13 +3,13 @@
 namespace HackbartPR\Controller;
 
 use Nyholm\Psr7\Response;
-use HackbartPR\Interfaces\Controller;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class Response404Controller implements Controller
+class Response404Controller implements RequestHandlerInterface
 {
-    public function processRequest(ServerRequestInterface $request): ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {  
         return new Response(404);        
     }

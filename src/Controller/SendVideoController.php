@@ -5,12 +5,12 @@ namespace HackbartPR\Controller;
 use Nyholm\Psr7\Response;
 use HackbartPR\Utils\Message;
 use HackbartPR\Utils\HtmlView;
-use HackbartPR\Interfaces\Controller;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use HackbartPR\Repository\PDOVideoRepository;
 
-class SendVideoController implements Controller
+class SendVideoController implements RequestHandlerInterface
 {
     private PDOVideoRepository $repository;
 
@@ -22,7 +22,7 @@ class SendVideoController implements Controller
         $this->repository = $repository;        
     }
 
-    public function processRequest(ServerRequestInterface $request): ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         [$id] = $this->validation($request);
 

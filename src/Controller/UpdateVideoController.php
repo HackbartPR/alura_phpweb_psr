@@ -6,13 +6,13 @@ use Nyholm\Psr7\Response;
 use HackbartPR\Utils\Image;
 use HackbartPR\Entity\Video;
 use HackbartPR\Utils\Message;
-use HackbartPR\Interfaces\Controller;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use HackbartPR\Repository\PDOVideoRepository;
 
-class UpdateVideoController implements Controller
+class UpdateVideoController implements RequestHandlerInterface
 {    
     private PDOVideoRepository $repository;
 
@@ -24,7 +24,7 @@ class UpdateVideoController implements Controller
         $this->repository = $repository;        
     }
 
-    public function processRequest(ServerRequestInterface $request): ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $param = $request->getQueryParams();
         $url = '/editar?id=' . $param['id'];

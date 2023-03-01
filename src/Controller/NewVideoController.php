@@ -6,15 +6,13 @@ use Nyholm\Psr7\Response;
 use HackbartPR\Utils\Image;
 use HackbartPR\Entity\Video;
 use HackbartPR\Utils\Message;
-use HackbartPR\Interfaces\Controller;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use HackbartPR\Repository\PDOVideoRepository;
+use Psr\Http\Server\RequestHandlerInterface;
 
-
-class NewVideoController implements Controller
+class NewVideoController implements RequestHandlerInterface
 {    
     private PDOVideoRepository $repository;
 
@@ -26,7 +24,7 @@ class NewVideoController implements Controller
         $this->repository = $repository;                
     }
 
-    public function processRequest(ServerRequestInterface $request): ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {   
         /** @var UploadedFileInterface $image_path */
         [$url, $title, $image_path, $validation] = $this->validation($request);

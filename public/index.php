@@ -2,19 +2,10 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use HackbartPR\Interfaces\Controller;
 use HackbartPR\Config\ConnectionCreator;
-use HackbartPR\Controller\LoginController;
-use HackbartPR\Controller\LogoutController;
 use HackbartPR\Repository\PDOUserRepository;
 use HackbartPR\Repository\PDOVideoRepository;
-use HackbartPR\Controller\NewVideoController;
-use HackbartPR\Controller\SendVideoController;
-use HackbartPR\Controller\ShowVideoController;
 use HackbartPR\Controller\Response404Controller;
-use HackbartPR\Controller\RemoveVideoController;
-use HackbartPR\Controller\UpdateVideoController;
-use HackbartPR\Controller\VerifyLoginController;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 
@@ -57,8 +48,8 @@ $creator = new ServerRequestCreator(
 );
 $request = $creator->fromGlobals();
 
-/** @var Controller $controller */
-$response = $controller->processRequest($request);
+/** @var \Psr\Http\Server\RequestHandlerInterface $controller */
+$response = $controller->handle($request);
 
 /* Envia o status da requisição */
 http_response_code($response->getStatusCode());

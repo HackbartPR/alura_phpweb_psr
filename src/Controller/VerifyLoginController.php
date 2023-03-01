@@ -5,12 +5,12 @@ namespace HackbartPR\Controller;
 use Nyholm\Psr7\Response;
 use HackbartPR\Utils\Auth;
 use HackbartPR\Utils\Message;
-use HackbartPR\Interfaces\Controller;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use HackbartPR\Repository\PDOUserRepository;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class VerifyLoginController implements Controller
+class VerifyLoginController implements RequestHandlerInterface
 {    
     private PDOUserRepository $repository;
     
@@ -22,7 +22,7 @@ class VerifyLoginController implements Controller
         $this->repository = $repository;        
     }
     
-    public function processRequest(ServerRequestInterface $request): ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         [$email, $password, $validation] = $this->validation($request);
 

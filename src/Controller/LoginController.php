@@ -5,12 +5,12 @@ namespace HackbartPR\Controller;
 use Nyholm\Psr7\Response;
 use HackbartPR\Utils\Auth;
 use HackbartPR\Utils\Message;
-use HackbartPR\Interfaces\Controller;
 use HackbartPR\Utils\HtmlView;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class LoginController implements Controller
+class LoginController implements RequestHandlerInterface
 {
     use Auth;
     use Message;
@@ -20,7 +20,7 @@ class LoginController implements Controller
     {                
     }
 
-    public function processRequest(ServerRequestInterface $request): ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         if ($this->isLogged()) {
             return new Response(200, ['Location' => '/']);

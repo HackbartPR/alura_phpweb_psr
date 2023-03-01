@@ -25,6 +25,6 @@ class ShowVideoController implements Controller
     public function processRequest(ServerRequestInterface $request): ResponseInterface
     {
         $this->show();
-        return new Response(302, body: $this->renderTemplate('showVideo', ['videoList' => $this->repository->all()]));                
+        return new Response(200, body:$this->renderTemplate('showVideo', ['videoList' => $this->repository->all()]));                
     }        
 }

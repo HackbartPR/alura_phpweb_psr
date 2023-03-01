@@ -8,6 +8,7 @@ use HackbartPR\Entity\Video;
 use HackbartPR\Utils\Message;
 use HackbartPR\Interfaces\Controller;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use HackbartPR\Repository\PDOVideoRepository;
 
@@ -52,21 +53,25 @@ class UpdateVideoController implements Controller
     private function validation(ServerRequestInterface $request): array
     {   
         $body = $request->getParsedBody();
+        $query = $request->getQueryParams();        
+        $files = $request->getUploadedFiles();
         $validation = true;
 
-        if (empty($body) || !isset($body['id'])) {
+        if (empty($body) || !isset($query['id'])) {
             $this->create(self::FORM_FAIL);
             $validation = false;
         }
 
-        $id = filter_var($body['id'], FILTER_VALIDATE_INT);
+        $id = filter_var($query['id'], FILTER_VALIDATE_INT);
         $url = filter_var($body['url'], FILTER_VALIDATE_URL);
         $title = filter_var($body['titulo']);
         
-        $image_path = null;
-        if (isset($_FILES['image']) && $_FILES['image']['error'] !== 4) {
-            $image_path = $_FILES['image'];
-        }
+        /** @var UploadedFileInterface $image */
+        $image = $files['image']->getSize() ? $files['image'] : null;        
+
+        if (!is_null($image) && $image->getError() !== UPLOAD_ERR_OK) {            
+            $validation = false;
+        } 
         
         if (!$url) {
             $this->create(self::URL_FAIL);
@@ -78,11 +83,11 @@ class UpdateVideoController implements Controller
             $validation = false;
         }
 
-        if (!empty($image_path) && !$this->isValid($image_path)) {
+        if (!empty($image) && !$this->isValid($image)) {
             $this->create(self::IMAGE_NOT_SAVED);
             $validation = false;
         }
 
-        return [$id, $url, $title, $image_path. $validation];        
+        return [$id, $url, $title, $image, $validation];        
     }
 }

@@ -33,7 +33,7 @@ class RemoveVideoController implements Controller
 
         if ($result) {
             $this->create(self::REMOVE_SUCCESS);
-            return new Response(204, ['Location' => '/']);
+            return new Response(200, ['Location' => '/']);
         } else {
             $this->create(self::REMOVE_FAIL);
             return new Response(400, ['Location' => '/']);
@@ -42,14 +42,15 @@ class RemoveVideoController implements Controller
 
     private function validation(ServerRequestInterface $request): array
     {   
-        $body = $request->getParsedBody();
+        $query = $request->getQueryParams();
+        $validation = true;
 
-        if (empty($body['id'])) {
+        if (empty($query['id'])) {
             $this->create(self::NOT_FOUND);
             $validation = false;
         }
 
-        $id = filter_var($body['id'], FILTER_VALIDATE_INT);        
+        $id = filter_var($query['id'], FILTER_VALIDATE_INT);        
 
         return [$id, $validation];        
     }

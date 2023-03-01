@@ -50,7 +50,7 @@ class VerifyLoginController implements Controller
     private function validation(ServerRequestInterface $request): array
     {   
         $body = $request->getParsedBody();
-        $validation = false;
+        $validation = true;
 
         if (empty($body['email']) || !isset($body['password'])) {
             $this->create(self::FORM_FAIL);

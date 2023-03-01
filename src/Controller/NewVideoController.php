@@ -7,10 +7,12 @@ use HackbartPR\Utils\Image;
 use HackbartPR\Entity\Video;
 use HackbartPR\Utils\Message;
 use HackbartPR\Interfaces\Controller;
-use HackbartPR\Repository\PDOVideoRepository;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use HackbartPR\Repository\PDOVideoRepository;
+
 
 class NewVideoController implements Controller
 {    
@@ -25,14 +27,15 @@ class NewVideoController implements Controller
     }
 
     public function processRequest(ServerRequestInterface $request): ResponseInterface
-    {
+    {   
+        /** @var UploadedFileInterface $image_path */
         [$url, $title, $image_path, $validation] = $this->validation($request);
 
         if (!$validation) {
             return new Response(422, ['Location' => '/novo']);
         }
 
-        if (!empty($image_path)) {
+        if (!is_null($image_path)) {            
             $image_path = $this->getName();
         }
 
@@ -40,7 +43,7 @@ class NewVideoController implements Controller
 
         if ($resp) {
             $this->create(self::REGISTER_SUCCESS);
-            return new Response(201, ['Location' => '/']);
+            return new Response(200, ['Location' => '/']);
         } else {
             $this->create(self::REGISTER_FAIL);
             return new Response(422, ['Location' => '/novo']);
@@ -50,7 +53,7 @@ class NewVideoController implements Controller
     private function validation(ServerRequestInterface $request): ?array
     {
         $body = $request->getParsedBody();
-        $files = $request->getUploadedFiles();
+        $files = $request->getUploadedFiles();                            
         $validation = true;
 
         if (empty($body)) {
@@ -58,12 +61,13 @@ class NewVideoController implements Controller
         }
 
         $url = filter_var($body['url'], FILTER_VALIDATE_URL);
-        $title = filter_input($body['title'], FILTER_DEFAULT);
-        
-        
-        $image_path = null;
-        if (isset($files['image']) && $files['image']['error'] !== 4) {
-            $image_path = $files['image'];
+        $title = filter_var($body['titulo'], FILTER_DEFAULT);
+                
+        /** @var UploadedFileInterface $image */
+        $image = $files['image']->getSize() ? $files['image'] : null;        
+
+        if (!is_null($image) && $image->getError() !== UPLOAD_ERR_OK) {            
+            $validation = false;
         }         
 
         if (!$url) {
@@ -81,6 +85,6 @@ class NewVideoController implements Controller
             $validation = false;
         }
 
-        return [$url, $title, $image_path, $validation];        
+        return [$url, $title, $image, $validation];        
     }
 }

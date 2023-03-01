@@ -29,6 +29,6 @@ class JsonVideoListController implements Controller
             ];
         }, $this->repository->all());
 
-        return new Response(200, body:json_encode($videoList));        
+        return new Response(200, ['Content-Type' => 'application/json'], json_encode($videoList));        
     }
 }

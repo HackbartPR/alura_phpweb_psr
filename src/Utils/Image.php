@@ -2,30 +2,33 @@
 
 namespace HackbartPR\Utils;
 
+use finfo;
+use Psr\Http\Message\UploadedFileInterface;
+
 trait Image
 {
-    private array $file;
+    private UploadedFileInterface $file;
     private ?string $extension = null;
     private int $maxSize = 1048576;
+    private string $name;
 
-    private function isValid(array $file): bool
+    private function isValid(UploadedFileInterface $file): bool
     {        
-        if ($file['error'] !== UPLOAD_ERR_OK) {
+        if ($file->getError() !== UPLOAD_ERR_OK) {
             return false;
         }
         
-        $info = getimagesize($file['tmp_name']);        
+        $pathFile = $file->getStream()->getMetadata('uri');
 
-        if (!$info) {
+        if (!$this->checkMimeType($pathFile)) {
             return false;
         }
 
-        if (filesize($file['tmp_name']) > $this->maxSize) {
+        if (filesize($pathFile) > $this->maxSize) {
             return false;
         }
 
-        $this->file = $file;
-        $this->extension = image_type_to_extension($info[2]);
+        $this->file = $file;        
         $this->setName();
 
         if (!$this->moveFile()) {
@@ -37,12 +40,12 @@ trait Image
     
     private function getName(): string
     {        
-        return $this->file['name'];
+        return $this->name;
     }
 
     private function setName(): void
     {        
-        $this->file['name'] = md5($this->file['name']) . $this->extension;        
+        $this->name = md5($this->file->getClientFilename()) . '.' . $this->extension;        
     }
 
     private function setMaxSize(int $size): void
@@ -55,12 +58,33 @@ trait Image
         $uploadsPath = __DIR__ . '/../../public/img/uploads/';            
         $pathWithName = $uploadsPath . $this->getName();
         
-        move_uploaded_file($this->file['tmp_name'], $pathWithName);
+        $this->file->moveTo($pathWithName);
 
         if (!file_exists($pathWithName)) {
             return false;
         }
 
         return true;
+    }
+
+    private function checkMimeType(string $tmpFile): bool
+    {
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->file($tmpFile);
+
+        if (!str_starts_with($mimeType, 'image/')) {
+            return false;
+        }
+
+        $this->getExtension($mimeType);
+
+        return true;
+    }
+
+    private function getExtension(string $mimeType): void
+    {
+        $array = explode('/', $mimeType);
+
+        $this->extension = $array[1];
     }
 }

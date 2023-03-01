@@ -37,11 +37,11 @@ class SendVideoController implements Controller
 
     private function validation(ServerRequestInterface $request): array
     {
-        $body = $request->getParsedBody();        
+        $query = $request->getQueryParams();        
 
         $id = null;
-        if (isset($body['id'])) {
-            $id = filter_var($body['id'], FILTER_VALIDATE_INT);            
+        if (isset($query['id'])) {
+            $id = filter_var($query['id'], FILTER_VALIDATE_INT);            
         }
 
         return [$id];        

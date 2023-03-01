@@ -23,7 +23,7 @@ class LoginController implements Controller
     public function processRequest(ServerRequestInterface $request): ResponseInterface
     {
         if ($this->isLogged()) {
-            return new Response(302, ['Location' => '/']);
+            return new Response(200, ['Location' => '/']);
         }
 
         $this->show();

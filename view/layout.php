@@ -29,3 +29,8 @@
             </nav>
 
         </header>
+    
+        <?=$this->section('content')?>
+
+    </body>
+</html>

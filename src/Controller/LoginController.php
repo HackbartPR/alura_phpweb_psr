@@ -2,10 +2,10 @@
 
 namespace HackbartPR\Controller;
 
+use League\Plates\Engine;
 use Nyholm\Psr7\Response;
 use HackbartPR\Utils\Auth;
 use HackbartPR\Utils\Message;
-use HackbartPR\Utils\HtmlView;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -14,9 +14,8 @@ class LoginController implements RequestHandlerInterface
 {
     use Auth;
     use Message;
-    use HtmlView;
 
-    public function __construct()
+    public function __construct(private Engine $template)
     {                
     }
 
@@ -27,6 +26,6 @@ class LoginController implements RequestHandlerInterface
         }
 
         $this->show();
-        return new Response(200, body: $this->renderTemplate('login'));        
+        return new Response(200, body: $this->template->render('login'));        
     }
 }

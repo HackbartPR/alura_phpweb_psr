@@ -2,9 +2,9 @@
 
 namespace HackbartPR\Controller;
 
+use League\Plates\Engine;
 use Nyholm\Psr7\Response;
 use HackbartPR\Utils\Message;
-use HackbartPR\Utils\HtmlView;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -13,13 +13,14 @@ use HackbartPR\Repository\PDOVideoRepository;
 class SendVideoController implements RequestHandlerInterface
 {
     private PDOVideoRepository $repository;
+    private Engine $template;
 
     use Message;
-    use HtmlView;
 
-    public function __construct(PDOVideoRepository $repository)
+    public function __construct(PDOVideoRepository $repository, Engine $template)
     {
-        $this->repository = $repository;        
+        $this->repository = $repository;
+        $this->template = $template;
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -32,7 +33,7 @@ class SendVideoController implements RequestHandlerInterface
         }
 
         $this->show();
-        return new Response(200, body: $this->renderTemplate('sendVideo', ['video' => $video]));        
+        return new Response(200, body: $this->template->render('sendVideo', ['video' => $video]));        
     }
 
     private function validation(ServerRequestInterface $request): array

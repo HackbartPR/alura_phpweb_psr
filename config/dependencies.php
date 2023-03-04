@@ -7,6 +7,10 @@ $builder = new DI\ContainerBuilder();
 $builder->addDefinitions([
     \PDO::class => function (): \PDO {        
         return \HackbartPR\Config\ConnectionCreator::createConnection();
+    },
+    League\Plates\Engine::class => function () {
+        $path = __DIR__ . '/../view';
+        return new \League\Plates\Engine($path);
     }
 ]);
 

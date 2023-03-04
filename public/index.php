@@ -2,12 +2,13 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use Nyholm\Psr7\Factory\Psr17Factory;
+use Psr\Container\ContainerInterface;
 use HackbartPR\Config\ConnectionCreator;
+use Nyholm\Psr7Server\ServerRequestCreator;
 use HackbartPR\Repository\PDOUserRepository;
 use HackbartPR\Repository\PDOVideoRepository;
 use HackbartPR\Controller\Response404Controller;
-use Nyholm\Psr7\Factory\Psr17Factory;
-use Nyholm\Psr7Server\ServerRequestCreator;
 
 session_start();
 session_regenerate_id();
@@ -15,25 +16,18 @@ session_regenerate_id();
 $path = $_SERVER['PATH_INFO'] ?? '/';
 $method = $_SERVER['REQUEST_METHOD'];
 
-$conn = ConnectionCreator::createConnection();
-
 if ((!array_key_exists('logged', $_SESSION) || !$_SESSION['logged']) && $path !== '/login') {
     header('Location: /login');
     exit();
 } 
 
-$repository = null;
-if ($path === '/login' || $path === '/logout') {
-    $repository = new PDOUserRepository($conn);
-} else {
-    $repository = new PDOVideoRepository($conn);
-}
-
+/** @var ContainerInterface $diContainer */
+$diContainer = require_once __DIR__ . '/../config/dependencies.php';
 $router = require_once __DIR__ . '/../routes/router.php';
-$routerClass = $router["$method|$path"];
 
-if (array_key_exists("$method|$path", $router)) {    
-    $controller = new $routerClass($repository);       
+if (array_key_exists("$method|$path", $router)) {
+    $routerClass = $router["$method|$path"];
+    $controller = $diContainer->get($routerClass);       
 } else {    
     $controller = new Response404Controller();
 }
